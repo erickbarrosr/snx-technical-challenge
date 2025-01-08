@@ -4,6 +4,7 @@ const postController = {
   async createPost(req, res) {
     try {
       const { title, content } = req.body;
+      const userId = req.user?.id;
 
       if (!title || !content) {
         return res
@@ -11,9 +12,14 @@ const postController = {
           .json({ error: "Título e conteúdo são obrigatórios." });
       }
 
+      if (!userId) {
+        return res.status(400).json({ error: "Usuário não autenticado." });
+      }
+
       const newPost = await Post.create({
         title,
         content,
+        userId,
       });
 
       return res.status(201).json({
