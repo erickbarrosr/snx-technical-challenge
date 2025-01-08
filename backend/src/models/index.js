@@ -6,7 +6,7 @@ const Comment = require("./comments.js");
 User.hasMany(Post, { foreignKey: { name: "userId", field: "userId" } });
 Post.belongsTo(User, { foreignKey: { name: "userId", field: "userId" } });
 
-Post.hasMany(Comment);
-Comment.belongsTo(Post);
+Post.hasMany(Comment, { foreignKey: { name: "postId", field: "postId" } });
+Comment.belongsTo(Post, { foreignKey: { name: "postId", field: "postId" } });
 
 module.exports = { sequelize, User, Post, Comment };
