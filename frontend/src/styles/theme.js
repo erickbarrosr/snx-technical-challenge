@@ -3,7 +3,7 @@ import { createTheme } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#1976d2", // Cor principal (azul padrão do MUI)
+      main: "#844AFF", // Cor principal (azul padrão do MUI)
     },
     secondary: {
       main: "#9c27b0", // Cor secundária (roxo padrão do MUI)
@@ -13,7 +13,7 @@ const theme = createTheme({
       paper: "#ffffff", // Cor de fundo para elementos tipo "paper"
     },
     text: {
-      primary: "#333333", // Cor principal do texto
+      primary: "#00112B", // Cor principal do texto
       secondary: "#666666", // Cor secundária do texto
     },
   },
@@ -26,6 +26,10 @@ const theme = createTheme({
     h2: {
       fontSize: "2rem",
       fontWeight: 600,
+    },
+    h4: {
+      fontSize: "1.5rem",
+      fontWeight: "500",
     },
     body1: {
       fontSize: "1rem",
