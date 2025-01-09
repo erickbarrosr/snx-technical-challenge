@@ -24,6 +24,32 @@ const postController = {
     }
   },
 
+  async getPostById(req, res) {
+    try {
+      const { id } = req.params;
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({ error: "Usuário não autenticado." });
+      }
+
+      const post = await Post.findOne({
+        where: { id, userId },
+      });
+
+      if (!post) {
+        return res
+          .status(404)
+          .json({ error: "Post não encontrado ou não autorizado." });
+      }
+
+      return res.status(200).json(post);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Erro ao buscar o post." });
+    }
+  },
+
   async createPost(req, res) {
     try {
       const { title, content } = req.body;
