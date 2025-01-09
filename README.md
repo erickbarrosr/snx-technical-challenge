@@ -1,4 +1,4 @@
-# Introduction
+# Introdução
 
 Este é um projeto desenvolvido para demonstrar minhas habilidades em desenvolvimento Full Stack, utilizando as tecnologias mais recentes e boas práticas.
 O projeto inclui uma API RESTful para gerenciar posts e comentários, com autenticação JWT, e um front-end interativo para gerenciar posts e comentários.
