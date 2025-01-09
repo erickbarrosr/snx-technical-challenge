@@ -1,4 +1,4 @@
-const { Post } = require("../models");
+const { Post, Comment } = require("../models");
 
 const postController = {
   async getPosts(req, res) {
@@ -129,6 +129,26 @@ const postController = {
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Erro ao deletar o post." });
+    }
+  },
+
+  async getCommentsByPost(req, res) {
+    try {
+      const { id } = req.params;
+
+      const post = await Post.findByPk(id);
+      if (!post) {
+        return res.status(404).json({ error: "Post não encontrado." });
+      }
+
+      const comments = await Comment.findAll({
+        where: { postId: id },
+      });
+
+      return res.status(200).json(comments);
+    } catch (error) {
+      console.error("Erro ao buscar comentários:", error);
+      return res.status(500).json({ error: "Erro ao buscar comentários." });
     }
   },
 };
