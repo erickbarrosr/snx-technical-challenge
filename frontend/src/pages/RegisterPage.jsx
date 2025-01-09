@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import { Box, TextField, Button, Typography, Alert } from "@mui/material";
-import axios from "axios";
+import api from "../services/api";
 import { Link } from "react-router-dom";
 
 const RegisterPage = () => {
@@ -11,14 +11,29 @@ const RegisterPage = () => {
     password: "",
   });
 
+  const [errors, setErrors] = useState({});
   const [error, setError] = useState(null);
-
   const [success, setSuccess] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     setFormData({ ...formData, [name]: value });
+
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = "O nome é obrigatório.";
+    if (!formData.username.trim())
+      newErrors.username = "O usuário é obrigatório.";
+    if (!formData.password.trim())
+      newErrors.password = "A senha é obrigatória.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
@@ -28,11 +43,10 @@ const RegisterPage = () => {
 
     setSuccess(false);
 
+    if (!validateForm()) return;
+
     try {
-      const response = await axios.post(
-        "http://localhost:3000/auth/register",
-        formData
-      );
+      const response = await api.post("/register", formData);
 
       console.log(response);
 
@@ -50,6 +64,11 @@ const RegisterPage = () => {
       justifyContent="center"
       height="100vh"
     >
+      <img
+        src="../../public/logo.png"
+        alt="Logo"
+        style={{ width: 252, marginBottom: 80 }}
+      />
       <Typography variant="h4" gutterBottom>
         Faça o seu cadastro:
       </Typography>
@@ -70,6 +89,8 @@ const RegisterPage = () => {
           margin="normal"
           value={formData.name}
           onChange={handleChange}
+          error={!!errors.name}
+          helperText={errors.name}
         />
         <TextField
           label="Usuário"
@@ -79,6 +100,8 @@ const RegisterPage = () => {
           margin="normal"
           value={formData.username}
           onChange={handleChange}
+          error={!!errors.username}
+          helperText={errors.username}
         />
         <TextField
           label="Senha"
@@ -89,6 +112,8 @@ const RegisterPage = () => {
           margin="normal"
           value={formData.password}
           onChange={handleChange}
+          error={!!errors.password}
+          helperText={errors.password}
         />
         <Button
           type="submit"
