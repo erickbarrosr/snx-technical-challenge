@@ -41,7 +41,7 @@ const postController = {
       const posts = await Post.findAll();
 
       if (posts.length === 0) {
-        return res.status(404).json({ message: "Nenhum post encontrado." });
+        return res.status(200).json({ message: "Nenhum post encontrado." });
       }
 
       return res.status(200).json(posts);
