@@ -1,6 +1,29 @@
 const { Post } = require("../models");
 
 const postController = {
+  async getPosts(req, res) {
+    try {
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({ error: "Usuário não autenticado." });
+      }
+
+      const posts = await Post.findAll({
+        where: { userId },
+      });
+
+      if (posts.length === 0) {
+        return res.status(200).json({ message: "Nenhum post encontrado." });
+      }
+
+      return res.status(200).json(posts);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Erro ao listar os posts." });
+    }
+  },
+
   async createPost(req, res) {
     try {
       const { title, content } = req.body;
@@ -33,21 +56,6 @@ const postController = {
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Erro ao criar o post." });
-    }
-  },
-
-  async getPosts(req, res) {
-    try {
-      const posts = await Post.findAll();
-
-      if (posts.length === 0) {
-        return res.status(200).json({ message: "Nenhum post encontrado." });
-      }
-
-      return res.status(200).json(posts);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: "Erro ao listar os posts." });
     }
   },
 
