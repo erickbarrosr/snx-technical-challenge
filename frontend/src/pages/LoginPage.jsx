@@ -8,6 +8,7 @@ import { TextField, Button, Box, Typography, Alert } from "@mui/material";
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
   const [error, setError] = useState(null);
   const { authToken, login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -18,12 +19,22 @@ const LoginPage = () => {
     }
   }, [authToken, navigate]);
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!username.trim()) newErrors.username = "O usuário é obrigatório.";
+    if (!password.trim()) newErrors.password = "A senha é obrigatória.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
 
+    if (!validateForm()) return;
+
     try {
-      const response = await api.post("/auth/login", { username, password });
+      const response = await api.post("/login", { username, password });
       const { token } = response.data;
 
       login(token);
@@ -42,6 +53,11 @@ const LoginPage = () => {
       justifyContent="center"
       height="100vh"
     >
+      <img
+        src="../../public/logo.png"
+        alt="Logo"
+        style={{ width: 252, marginBottom: 80 }}
+      />
       <Typography variant="h4" gutterBottom>
         Faça o seu Login:
       </Typography>
@@ -56,7 +72,12 @@ const LoginPage = () => {
           fullWidth
           margin="normal"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => {
+            setUsername(e.target.value);
+            if (errors.username) setErrors({ ...errors, username: "" });
+          }}
+          error={!!errors.username}
+          helperText={errors.username}
         />
         <TextField
           label="Senha"
@@ -65,7 +86,12 @@ const LoginPage = () => {
           fullWidth
           margin="normal"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            if (errors.password) setErrors({ ...errors, password: "" });
+          }}
+          error={!!errors.password}
+          helperText={errors.password}
         />
         {error && (
           <Alert severity="error" sx={{ mt: 2 }}>
