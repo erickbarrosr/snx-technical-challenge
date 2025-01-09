@@ -14,7 +14,12 @@ const postController = {
       });
 
       if (posts.length === 0) {
-        return res.status(200).json({ message: "Nenhum post encontrado." });
+        return res
+          .status(200)
+          .json({
+            message:
+              "Ops, parece que esta área está vazia. Bora adicionar um post?",
+          });
       }
 
       return res.status(200).json(posts);
