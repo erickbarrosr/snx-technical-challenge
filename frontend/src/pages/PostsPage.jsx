@@ -9,19 +9,40 @@ import {
   IconButton,
   Alert,
   Button,
+  Collapse,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import CommentIcon from "@mui/icons-material/Comment";
 import api from "../services/api";
 import { AuthContext } from "../context/AuthContext";
+import CommentsPage from "./CommentsPage";
 
 const PostsListPage = () => {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
+  const [expandedPost, setExpandedPost] = useState(null);
   const { authToken, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const isTokenExpired = (token) => {
+    if (!token) return true;
+
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const expirationTime = payload.exp * 1000;
+    const currentTime = Date.now();
+
+    return currentTime >= expirationTime;
+  };
+
   const fetchPosts = async () => {
+    if (isTokenExpired(authToken)) {
+      logout();
+      navigate("/login");
+
+      return;
+    }
+
     try {
       const response = await api.get("/posts", {
         headers: {
@@ -66,6 +87,10 @@ const PostsListPage = () => {
     }
   };
 
+  const toggleComments = (postId) => {
+    setExpandedPost((prev) => (prev === postId ? null : postId));
+  };
+
   return (
     <Box
       display="flex"
@@ -95,29 +120,44 @@ const PostsListPage = () => {
           sx={{ position: "absolute", top: 16, left: 16, zIndex: 10 }}
         >
           Novo Post
-        </Button>{" "}
+        </Button>
       </Link>
       <List sx={{ width: "100%", maxWidth: 600, mt: 4 }}>
         {posts.map((post) => (
-          <ListItem key={post.id}>
-            <ListItemText primary={post.title} secondary={post.content} />
-            <Link to={`/edit/${post.id}`}>
-              <IconButton edge="end" aria-label="edit">
-                <EditIcon />
+          <Box key={post.id} sx={{ mb: 2 }}>
+            <ListItem>
+              <ListItemText primary={post.title} secondary={post.content} />
+              <Link to={`/edit/${post.id}`}>
+                <IconButton edge="end" aria-label="edit">
+                  <EditIcon />
+                </IconButton>
+              </Link>
+              <IconButton
+                edge="end"
+                aria-label="delete"
+                onClick={() => handleDeletePost(post.id)}
+              >
+                <DeleteIcon />
               </IconButton>
-            </Link>
-            <IconButton
-              edge="end"
-              aria-label="delete"
-              onClick={() => handleDeletePost(post.id)}
+              <IconButton
+                edge="end"
+                aria-label="comments"
+                onClick={() => toggleComments(post.id)}
+              >
+                <CommentIcon />
+              </IconButton>
+            </ListItem>
+            <Collapse
+              in={expandedPost === post.id}
+              timeout="auto"
+              unmountOnExit
             >
-              <DeleteIcon />
-            </IconButton>
-          </ListItem>
+              <CommentsPage postId={post.id} />
+            </Collapse>
+          </Box>
         ))}
       </List>
     </Box>
   );
 };
-
 export default PostsListPage;
