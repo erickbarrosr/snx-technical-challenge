@@ -122,5 +122,5 @@ Você pode testar as funcionalidades de CRUD de posts e comentários.
 
 ### Contato do autor em caso de dúvidas:
 
-E-mail: erickbarrosrezende@gmail.com
-WhatsApp: (32) 9 9963-2070
+- E-mail: erickbarrosrezende@gmail.com
+- WhatsApp: (32) 9 9963-2070
