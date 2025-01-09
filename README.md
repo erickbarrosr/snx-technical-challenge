@@ -5,7 +5,7 @@ O projeto inclui uma API RESTful para gerenciar posts e comentários, com autent
 
 # Preview
 
-<img src="https://github.com/erickbarrosr/snx-technical-challenge/blob/main/frontend/public/logo.png" height="500"/>
+<img src="https://github.com/erickbarrosr/snx-technical-challenge/blob/main/frontend/public/preview.png" height="500"/>
 
 ## Live link:
 
