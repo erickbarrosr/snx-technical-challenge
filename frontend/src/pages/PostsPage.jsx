@@ -1,79 +1,70 @@
-// eslint-disable-next-line no-unused-vars
-import React, { useState, useEffect } from "react";
+/* eslint-disable no-unused-vars */
+import React, { useState, useEffect, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Box,
-  TextField,
-  Button,
-  Typography,
   List,
   ListItem,
   ListItemText,
   IconButton,
   Alert,
+  Button,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import axios from "axios";
+import EditIcon from "@mui/icons-material/Edit";
+import api from "../services/api";
+import { AuthContext } from "../context/AuthContext";
 
-const PostsPage = () => {
+const PostsListPage = () => {
   const [posts, setPosts] = useState([]);
-  const [newPost, setNewPost] = useState("");
   const [error, setError] = useState(null);
+  const { authToken, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/posts", {
+      const response = await api.get("/posts", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
-      setPosts(response.data);
+
+      if (response.data.message) {
+        setPosts([]);
+        setError(response.data.message);
+      } else {
+        setPosts(response.data);
+        setError(null);
+      }
     } catch (err) {
       console.error(err);
-
       setError("Erro ao buscar posts.");
     }
   };
 
-  const handleAddPost = async () => {
-    if (!newPost) return;
-
-    try {
-      const response = await axios.post(
-        "http://localhost:3000/posts",
-        { content: newPost },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      setPosts([...posts, response.data]);
-      setNewPost("");
-    } catch (err) {
-      console.error(err);
-
-      setError("Erro ao adicionar post.");
-    }
-  };
-
-  const handleDeletePost = async (id) => {
-    try {
-      await axios.delete(`http://localhost:3000/posts/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      setPosts(posts.filter((post) => post.id !== id));
-    } catch (err) {
-      console.error(err);
-
-      setError("Erro ao deletar post.");
-    }
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
   };
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authToken]);
+
+  const handleDeletePost = async (id) => {
+    try {
+      await api.delete(`/posts/${id}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
+    } catch (err) {
+      console.error(err);
+      setError("Erro ao deletar post.");
+    }
+  };
 
   return (
     <Box
@@ -83,51 +74,45 @@ const PostsPage = () => {
       justifyContent="center"
       mt={4}
     >
-      <Typography variant="h4" gutterBottom>
-        Posts
-      </Typography>
-      {error && <Alert severity="error">{error}</Alert>}
-      <Box
-        component="form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleAddPost();
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={handleLogout}
+        sx={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          zIndex: 10,
         }}
-        sx={{ width: "100%", maxWidth: 400, mt: 2 }}
       >
-        <TextField
-          label="Novo Post"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={newPost}
-          onChange={(e) => setNewPost(e.target.value)}
-        />
+        Sair
+      </Button>
+      {error && <Alert severity="error">{error}</Alert>}
+      <Link to="/create" style={{ textDecoration: "none" }}>
         <Button
-          type="submit"
           variant="contained"
           color="primary"
-          fullWidth
-          sx={{ mt: 2 }}
+          sx={{ position: "absolute", top: 16, left: 16, zIndex: 10 }}
         >
-          Adicionar Post
-        </Button>
-      </Box>
-      <List sx={{ width: "100%", maxWidth: 400, mt: 4 }}>
+          Novo Post
+        </Button>{" "}
+      </Link>
+      <List sx={{ width: "100%", maxWidth: 600, mt: 4 }}>
         {posts.map((post) => (
-          <ListItem
-            key={post.id}
-            secondaryAction={
-              <IconButton
-                edge="end"
-                aria-label="delete"
-                onClick={() => handleDeletePost(post.id)}
-              >
-                <DeleteIcon />
+          <ListItem key={post.id}>
+            <ListItemText primary={post.title} secondary={post.content} />
+            <Link to={`/edit/${post.id}`}>
+              <IconButton edge="end" aria-label="edit">
+                <EditIcon />
               </IconButton>
-            }
-          >
-            <ListItemText primary={post.content} />
+            </Link>
+            <IconButton
+              edge="end"
+              aria-label="delete"
+              onClick={() => handleDeletePost(post.id)}
+            >
+              <DeleteIcon />
+            </IconButton>
           </ListItem>
         ))}
       </List>
@@ -135,4 +120,4 @@ const PostsPage = () => {
   );
 };
 
-export default PostsPage;
+export default PostsListPage;
