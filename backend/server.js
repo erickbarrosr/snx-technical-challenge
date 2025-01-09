@@ -1,8 +1,11 @@
 require("dotenv").config();
 
 const app = require("./src/app.js");
+const connectMongoDB = require("./src/config/mongo.js");
 
-const port = process.env.PORT || 8080;
+connectMongoDB();
+
+const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
   console.log();
